@@ -5,17 +5,24 @@
 ## Agile Process
 The Agile process used here is very simple as there is only one developer, it shouldn't be complicated at all.
 
-This has been done simply using ClickUp as the board management tool:
-- The Challenge itself has been separated into mini-tasks.
+This has been done simply using Clickup as the board management tool:
+- The Challange itself has been separated into mini-tasks.
 - Each task has simply 3 statuses (TODO, In Progress, Completed), acceptance criteria, time-estimation and due-date, also comments if needed.
-- The tasks hasn't been written as a user-stories, it was much simpler and better to be segregated as a technical-based stories that fits with the challenge target.
+- The tasks hasn't been written as a user-stories, it was much simpler and better to be segregatted as a technical-based stories that fits with the challenge target.
 
 If you are interested, you can check the board's **[List view](https://sharing.clickup.com/42008161/l/h/6-222229294-1/ef602d4c6f6412b)**, it also has a **[Gantt-Chart view](https://sharing.clickup.com/42008161/g/h/181zk1-20/6ed8fc490596066)**.
 
-![ClickUp Board List View](/assets/imgs/docs/agile_board_process.png "ClickUp Board List View")
+![Clickup Board List View](/assets/imgs/docs/agile_board_process.png "Clickup Board List View")
 ## Covered points
 ## Documentation
 ### API Documentation
+For the documentation, I have integrated Swagger with the most simplest and fastest way as the time of the challenge is limited and I wanted to it to be a little bit neat.
+
+The Api documentation can be accessed -without authentication to keep it simple- after running the rails server at `localhost:3000/api-docs`
+
+Here is a sample screenshot:
+![Swagger Api Documentation](/assets/imgs/docs/api_documentation.png "Swagger Api Documentation")
+
 ### Database Design
 For the core data of the system that holds everything together, MYSQL is the bigman here.
 
@@ -32,7 +39,7 @@ We've 3 main tables:
   - `number`: Same as in the chat table but **unique per chat**.
   - `body`: The sent message body in the chat.
 
-There is the Database Schema to fully visualize everything together: 
+There is the Database Schema to fully visualize everything together:
 
 ![MySQL Database Design](/assets/imgs/docs/mysql_database_design.png "MySQL Database Design")
 
