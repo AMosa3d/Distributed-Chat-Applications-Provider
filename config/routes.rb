@@ -3,4 +3,13 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "articles#index"
+  concern :apis_base do
+    resources :applications, param: :token, :except => [:destroy]
+  end
+
+  namespace :api do
+    namespace :v1 do
+      concerns :apis_base
+    end
+  end
 end
