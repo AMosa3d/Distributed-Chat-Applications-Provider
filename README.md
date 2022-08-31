@@ -16,5 +16,25 @@ If you are interested, you can check the board's **[List view](https://sharing.c
 ## Covered points
 ## Documentation
 ### API Documentation
+### Database Design
+For the core data of the system that holds everything together, MYSQL is the bigman here.
+
+We've 3 main tables:
+- **Applications Table**:
+  - `name`: Given by the client and there is no restriction to its uniqueness.
+  - `token`: Generated **unique JWT token**.
+  - `chats_count`: Aggregated value of the number of chats that are related to this application.
+- **Chats Table**:
+  - `number`: Each chat has a number that the user uses to reach that chat, it's not the id of the table and it's only **unique per application**.
+  - `token`: Generated **unique JWT token**.
+  - `messages_count`: Aggregated value of the number of messages that are related to this chat.
+- **Messages Table**:
+  - `number`: Same as in the chat table but **unique per chat**.
+  - `body`: The sent message body in the chat.
+
+There is the Database Schema to fully visualize everything together: 
+
+![MySQL Database Design](/assets/imgs/docs/mysql_database_design.png "MySQL Database Design")
+
 ### Integration and Configuration Steps
 ### Git-flow used
