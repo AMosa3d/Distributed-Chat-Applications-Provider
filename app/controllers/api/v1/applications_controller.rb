@@ -33,7 +33,7 @@ class Api::V1::ApplicationsController < ApplicationController
 
     json_response(
       {
-        :message => "Application has be created successfully",
+        :message => "Application has be updated successfully",
         :application => @application
       }, :ok, [:id]
     )
