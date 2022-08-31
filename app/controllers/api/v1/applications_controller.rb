@@ -14,8 +14,7 @@ class Api::V1::ApplicationsController < ApplicationController
     json_response(@application, :ok, [:id])
   end
 
-  # POST /api/v1/applications(.:format)
-  # create
+  # POST /api/v1/applications
   def create
     @application = Application.create!(creation_params)
     json_response(
@@ -27,7 +26,6 @@ class Api::V1::ApplicationsController < ApplicationController
   end
 
   # PUT - PATCH  /api/v1/applications/:id
-  # update
   def update
     @application.update!(application_whitelist_params)
 
