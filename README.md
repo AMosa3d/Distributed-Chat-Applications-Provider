@@ -35,9 +35,11 @@ We've 3 main tables:
   - `number`: Each chat has a number that the user uses to reach that chat, it's not the id of the table and it's only **unique per application**.
   - `token`: Generated **unique JWT token**.
   - `messages_count`: Aggregated value of the number of messages that are related to this chat.
+  - Both `number` & `application_id` are unique as a group, since we can't have 2 chats with the same number in the same application.
 - **Messages Table**:
   - `number`: Same as in the chat table but **unique per chat**.
   - `body`: The sent message body in the chat.
+  - Both `number` & `chat_id` are unique as a group, since we can't have 2 messages with the same number in the same chat.
 
 There is the Database Schema to fully visualize everything together:
 
