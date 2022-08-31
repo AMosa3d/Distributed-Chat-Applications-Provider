@@ -6,7 +6,9 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   # root "articles#index"
   concern :apis_base do
-    resources :applications, param: :token, :except => [:destroy]
+    resources :applications, param: :token, :except => [:destroy] do
+      resources :chats, param: :number, :except => [:destroy]
+    end
   end
 
   namespace :api do
