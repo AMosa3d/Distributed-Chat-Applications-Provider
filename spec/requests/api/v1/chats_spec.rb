@@ -7,7 +7,7 @@ RSpec.describe "api/v1/chats_controller", type: :request do
     get "Retrieves all the created chats for the given token's application" do
       tags "Chats"
       produces "application_token/json"
-      parameter name: :token, in: :path, type: :string
+      parameter name: :application_token, in: :path, type: :string
       response '200', 'Chats retrieved' do
         schema type: :array,
           items: {
@@ -122,7 +122,8 @@ RSpec.describe "api/v1/chats_controller", type: :request do
       tags "Chats"
       consumes "application/json"
       produces "application/json"
-      parameter name: :token, in: :path, type: :string
+      parameter name: :application_token, in: :path, type: :string
+      parameter name: :number, in: :path, type: :integer
       parameter name: :chat, in: :body, schema: {
         type: :object,
         properties: {

@@ -1,26 +1,27 @@
 require "swagger_helper"
 
-RSpec.describe "api/v1/application_controller", type: :request do
+RSpec.describe "api/v1/chat_messages_controller", type: :request do
 
-  path "/api/v1/applications" do
+  path "/api/v1/applications/:application_token/chats/:chat_number/messages" do
 
-    get "Retrieves all the created applications" do
-      tags "Applications"
-      produces "application/json"
-      response '200', 'Applications retrieved' do
+    get "Retrieves all the created messages for the given number's chat" do
+      tags "Chat Messages"
+      produces "application_token/json"
+      parameter name: :application_token, in: :path, type: :string
+      parameter name: :chat_number, in: :path, type: :string
+      response '200', 'Chat\'s Messages retrieved' do
         schema type: :array,
           items: {
             type: :object,
             properties: {
-              name: { type: :string },
-              chats_count: { type: :integer },
+              body: { type: :string },
               created_at: { type: :string },
               updated_at: { type: :string }
             },
-            required: ['name', 'created_at', 'updated_at']
+            required: ['body', 'created_at', 'updated_at']
           }
 
-          let(:application) {}
+          let(:chatMessage) {}
         run_test!
       end
       response "422", "Invalid request" do
@@ -36,14 +37,16 @@ RSpec.describe "api/v1/application_controller", type: :request do
     end
 
 
-    post "Creates a new Application" do
-      tags "Applications"
+    post "Creates a new message in the given number's chat" do
+      tags "Chat Messages"
       consumes "application/json"
       produces "application/json"
-      parameter name: :application, in: :body, schema: {
+      parameter name: :application_token, in: :path, type: :string
+      parameter name: :chat_number, in: :path, type: :string
+      parameter name: :message, in: :body, schema: {
         type: :object,
         properties: {
-          name: { type: :string }
+          body: { type: :string }
         },
         required: ['name'],
       }
@@ -51,19 +54,19 @@ RSpec.describe "api/v1/application_controller", type: :request do
         schema type: :object,
           properties: {
             message: { type: :string },
-            application: { type: :object,
+            chat_message: { type: :object,
               properties: {
-                name: { type: :string },
-                token: { type: :string },
+                body: { type: :string },
+                number: { type: :integer },
                 created_at: { type: :string },
                 updated_at: { type: :string }
               },
-              required: ['name', 'token', 'created_at', 'updated_at']
+              required: ['name', 'number', 'created_at', 'updated_at']
             }
           },
-          required: ['message', 'application']
+          required: ['message', 'chat_message']
 
-        let(:application) {}
+        let(:ChatMessage) {}
         run_test!
       end
       response "422", "Invalid request" do
@@ -82,24 +85,25 @@ RSpec.describe "api/v1/application_controller", type: :request do
 
 ################################################################################
 
-  path "/api/v1/applications/:token" do
+  path "/api/v1/applications/:application_token/chats/:chat_number/messages/:number" do
 
-    get "Retrieves the given token's application" do
-      tags "Applications"
+    get "Retrieves the given number's chat's message" do
+      tags "Chat Messages"
       produces "application/json"
-      parameter name: :token, in: :path, type: :string
+      parameter name: :application_token, in: :path, type: :string
+      parameter name: :chat_number, in: :path, type: :integer
+      parameter name: :number, in: :path, type: :integer
       response '200', 'Applications retrieved' do
         schema type: :object,
           properties: {
-            name: { type: :string },
-            token: { type: :string },
-            chats_count: { type: :integer },
+            body: { type: :string },
+            number: { type: :integer },
             created_at: { type: :string },
             updated_at: { type: :string }
           },
-          required: ['name', 'token', 'created_at', 'updated_at']
+          required: ['body', 'number', 'created_at', 'updated_at']
 
-          let(:application) {}
+          let(:chatMessage) {}
         run_test!
       end
       response "422", "Invalid request" do
@@ -115,36 +119,37 @@ RSpec.describe "api/v1/application_controller", type: :request do
     end
 
 
-    put "Update Application" do
-      tags "Applications"
+    put "Update message of the given number's chat" do
+      tags "Chat Messages"
       consumes "application/json"
       produces "application/json"
       parameter name: :token, in: :path, type: :string
-      parameter name: :application, in: :body, schema: {
+      parameter name: :chat_number, in: :path, type: :string
+      parameter name: :number, in: :path, type: :string
+      parameter name: :chat_message, in: :body, schema: {
         type: :object,
         properties: {
-          name: { type: :string }
+          body: { type: :string }
         },
-        required: ['name'],
+        required: ['body'],
       }
       response "200", "Application updated successfully" do
         schema type: :object,
           properties: {
             message: { type: :string },
-            application: { type: :object,
+            chat_message: { type: :object,
               properties: {
-                name: { type: :string },
-                token: { type: :string },
-                chats_count: { type: :integer },
+                body: { type: :string },
+                number: { type: :integer },
                 created_at: { type: :string },
                 updated_at: { type: :string }
               },
-              required: ['name', 'token', 'created_at', 'updated_at']
+              required: ['body', 'number', 'created_at', 'updated_at']
             }
           },
-          required: ['message', 'application']
+          required: ['message', 'chat']
 
-        let(:application) {}
+        let(:chatMessage) {}
         run_test!
       end
       response "422", "Invalid request" do
