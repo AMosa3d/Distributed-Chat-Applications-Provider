@@ -5,13 +5,13 @@ class Api::V1::ApplicationsController < ApplicationController
   # reads all the applications
   def index
     @applications = Application.all
-    json_response(@applications, :ok, [:id, :token])
+    json_response(@applications, :ok, except = [:id, :token])
   end
 
   # GET /api/v1/applications/:id
   # reads the application by its token
   def show
-    json_response(@application, :ok, [:id])
+    json_response(@application, :ok, except = [:id])
   end
 
   # POST /api/v1/applications
@@ -21,7 +21,7 @@ class Api::V1::ApplicationsController < ApplicationController
       {
         :message => "Application has be created successfully",
         :application => @application
-      }, :created, [:id]
+      }, :created, except = [:id, :messages_count]
     )
   end
 
@@ -33,7 +33,7 @@ class Api::V1::ApplicationsController < ApplicationController
       {
         :message => "Application has be updated successfully",
         :application => @application
-      }, :ok, [:id]
+      }, :ok, except = [:id]
     )
   end
 
