@@ -14,7 +14,7 @@ class Api::V1::ChatsController < ApplicationController
     json_response(@chat, :ok, except = [:id, :application_id])
   end
 
-  # POST /api/v1/applications/:application_token/chats(.:format)
+  # POST /api/v1/applications/:application_token/chats
   def create
     @chat = @application.chats.create!(creation_params)
     json_response(

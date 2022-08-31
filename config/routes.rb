@@ -7,7 +7,9 @@ Rails.application.routes.draw do
   # root "articles#index"
   concern :apis_base do
     resources :applications, param: :token, :except => [:destroy] do
-      resources :chats, param: :number, :except => [:destroy]
+      resources :chats, param: :number, :except => [:destroy] do
+        resources :messages, param: :number, :except => [:destroy], controller: 'chat_messages'
+      end
     end
   end
 
