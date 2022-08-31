@@ -1,25 +1,27 @@
 require "swagger_helper"
 
-RSpec.describe "api/v1/application_controller", type: :request do
+RSpec.describe "api/v1/chats_controller", type: :request do
 
-  path "/api/v1/applications" do
+  path "/api/v1/applications/:application_token/chats" do
 
-    get "Retrieves all the created applications" do
-      tags "Applications"
-      produces "application/json"
-      response '200', 'Applications retrieved' do
+    get "Retrieves all the created chats for the given token's application" do
+      tags "Chats"
+      produces "application_token/json"
+      parameter name: :token, in: :path, type: :string
+      response '200', 'Chats retrieved' do
         schema type: :array,
           items: {
             type: :object,
             properties: {
               name: { type: :string },
+              messages_count: { type: :integer },
               created_at: { type: :string },
               updated_at: { type: :string }
             },
             required: ['name', 'created_at', 'updated_at']
           }
 
-          let(:application) {}
+          let(:chat) {}
         run_test!
       end
       response "422", "Invalid request" do
@@ -35,11 +37,12 @@ RSpec.describe "api/v1/application_controller", type: :request do
     end
 
 
-    post "Creates a new Application" do
-      tags "Applications"
+    post "Creates a new chat that will be linked to the given token's application" do
+      tags "Chats"
       consumes "application/json"
       produces "application/json"
-      parameter name: :application, in: :body, schema: {
+      parameter name: :application_token, in: :path, type: :string
+      parameter name: :chat, in: :body, schema: {
         type: :object,
         properties: {
           name: { type: :string }
@@ -50,19 +53,19 @@ RSpec.describe "api/v1/application_controller", type: :request do
         schema type: :object,
           properties: {
             message: { type: :string },
-            application: { type: :object,
+            chat: { type: :object,
               properties: {
                 name: { type: :string },
-                token: { type: :string },
+                number: { type: :integer },
                 created_at: { type: :string },
                 updated_at: { type: :string }
               },
-              required: ['name', 'token', 'created_at', 'updated_at']
+              required: ['name', 'number', 'created_at', 'updated_at']
             }
           },
-          required: ['message', 'application']
+          required: ['message', 'chat']
 
-        let(:application) {}
+        let(:chat) {}
         run_test!
       end
       response "422", "Invalid request" do
@@ -81,23 +84,25 @@ RSpec.describe "api/v1/application_controller", type: :request do
 
 ################################################################################
 
-  path "/api/v1/applications/:token" do
+  path "/api/v1/applications/:application_token/chats/:number" do
 
-    get "Retrieves the given token's application" do
-      tags "Applications"
+    get "Retrieves the given token's application's chat" do
+      tags "Chats"
       produces "application/json"
-      parameter name: :token, in: :path, type: :string
+      parameter name: :application_token, in: :path, type: :string
+      parameter name: :number, in: :path, type: :integer
       response '200', 'Applications retrieved' do
         schema type: :object,
           properties: {
             name: { type: :string },
-            token: { type: :string },
+            number: { type: :integer },
+            messages_count: { type: :integer },
             created_at: { type: :string },
             updated_at: { type: :string }
           },
-          required: ['name', 'token', 'created_at', 'updated_at']
+          required: ['name', 'number', 'created_at', 'updated_at']
 
-          let(:application) {}
+          let(:chat) {}
         run_test!
       end
       response "422", "Invalid request" do
@@ -113,12 +118,12 @@ RSpec.describe "api/v1/application_controller", type: :request do
     end
 
 
-    put "Update Application" do
-      tags "Applications"
+    put "Update Chat of the given token's application" do
+      tags "Chats"
       consumes "application/json"
       produces "application/json"
       parameter name: :token, in: :path, type: :string
-      parameter name: :application, in: :body, schema: {
+      parameter name: :chat, in: :body, schema: {
         type: :object,
         properties: {
           name: { type: :string }
@@ -129,19 +134,20 @@ RSpec.describe "api/v1/application_controller", type: :request do
         schema type: :object,
           properties: {
             message: { type: :string },
-            application: { type: :object,
+            chat: { type: :object,
               properties: {
                 name: { type: :string },
-                token: { type: :string },
+                number: { type: :integer },
+                messages_count: { type: :integer },
                 created_at: { type: :string },
                 updated_at: { type: :string }
               },
-              required: ['name', 'token', 'created_at', 'updated_at']
+              required: ['name', 'number', 'created_at', 'updated_at']
             }
           },
-          required: ['message', 'application']
+          required: ['message', 'chat']
 
-        let(:application) {}
+        let(:chat) {}
         run_test!
       end
       response "422", "Invalid request" do

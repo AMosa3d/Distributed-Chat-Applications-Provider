@@ -8,7 +8,7 @@ paths:
     get:
       summary: Retrieves all the created applications
       tags:
-      - Application
+      - Applications
       responses:
         '200':
           description: Applications retrieved
@@ -43,7 +43,7 @@ paths:
     post:
       summary: Creates a new Application
       tags:
-      - Application
+      - Applications
       parameters: []
       responses:
         '201':
@@ -95,11 +95,11 @@ paths:
                   type: string
               required:
               - name
-  "/api/v1/applications/{token}":
+  "/api/v1/applications/:token":
     get:
-      summary: Retrieves the given token's applications
+      summary: Retrieves the given token's application
       tags:
-      - Application
+      - Applications
       parameters:
       - name: token
         in: path
@@ -141,8 +141,13 @@ paths:
     put:
       summary: Update Application
       tags:
-      - Application
-      parameters: []
+      - Applications
+      parameters:
+      - name: token
+        in: path
+        required: true
+        schema:
+          type: string
       responses:
         '200':
           description: Application updated successfully
@@ -172,6 +177,222 @@ paths:
                 required:
                 - message
                 - application
+        '422':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                - message
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              required:
+              - name
+  "/api/v1/applications/:application_token/chats":
+    get:
+      summary: Retrieves all the created chats for the given token's application
+      tags:
+      - Chats
+      parameters:
+      - name: token
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Chats retrieved
+          content:
+            application_token/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    messages_count:
+                      type: integer
+                    created_at:
+                      type: string
+                    updated_at:
+                      type: string
+                  required:
+                  - name
+                  - created_at
+                  - updated_at
+        '422':
+          description: Invalid request
+          content:
+            application_token/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                - message
+    post:
+      summary: Creates a new chat that will be linked to the given token's application
+      tags:
+      - Chats
+      parameters:
+      - name: application_token
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '201':
+          description: Application created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  chat:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      number:
+                        type: integer
+                      created_at:
+                        type: string
+                      updated_at:
+                        type: string
+                    required:
+                    - name
+                    - number
+                    - created_at
+                    - updated_at
+                required:
+                - message
+                - chat
+        '422':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                - message
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              required:
+              - name
+  "/api/v1/applications/:application_token/chats/:number":
+    get:
+      summary: Retrieves the given token's application's chat
+      tags:
+      - Chats
+      parameters:
+      - name: application_token
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: number
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Applications retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  number:
+                    type: integer
+                  messages_count:
+                    type: integer
+                  created_at:
+                    type: string
+                  updated_at:
+                    type: string
+                required:
+                - name
+                - number
+                - created_at
+                - updated_at
+        '422':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                - message
+    put:
+      summary: Update Chat of the given token's application
+      tags:
+      - Chats
+      parameters:
+      - name: token
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Application updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  chat:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      number:
+                        type: integer
+                      messages_count:
+                        type: integer
+                      created_at:
+                        type: string
+                      updated_at:
+                        type: string
+                    required:
+                    - name
+                    - number
+                    - created_at
+                    - updated_at
+                required:
+                - message
+                - chat
         '422':
           description: Invalid request
           content:

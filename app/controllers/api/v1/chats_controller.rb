@@ -21,7 +21,7 @@ class Api::V1::ChatsController < ApplicationController
       {
         :message => "Chat has be created successfully",
         :chat => @chat
-      }, :created, except = [:id, :application_id]
+      }, :created, except = [:id, :messages_count, :application_id]
     )
   end
 
