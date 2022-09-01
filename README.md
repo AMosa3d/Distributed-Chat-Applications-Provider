@@ -45,5 +45,22 @@ There is the Database Schema to fully visualize everything together:
 
 ![MySQL Database Design](/assets/imgs/docs/mysql_database_design.png "MySQL Database Design")
 
-### Integration and Configuration Steps
+### Code Documentation
+#### Generated Token of the Application
+I was debating about using **JSON Web Token (JWT)**, **UUID** or any randomly generated string, so I thought that using **randomly generate 32 hex chars length string** would be the best here as used below.
+```ruby
+def generate_token
+    self.token = loop do
+      generatedToken = SecureRandom.hex(32)
+      break generatedToken unless Application.exists?(token: generatedToken)
+    end
+end
+```
+As you can see it's very simple and serves the requirement given but there is 2 important notes that should be discussed here:
+  1. This randomly string is not guaranteed to be unique but it is handled by unique index in MySQL and ```unless Application.exists?(token: generatedToken)``` . This requires a db read operation to confirm and in a very raaaare cases would require more than one read. (as num of possible tokens = 16 hex char ^ 32 max len).
+  2. We would handle uniqueness better in JWT but requires more effort to build its parameters and generate it. Although we would need to use the ID of the application to guarantee its uniqueness which would require also a db read operation, but there are cache hacks that Redis can assist in to make it smoother.
+
+The reason why I have ignored using JWT was that I tried to make it simple and the application table read/writes operations is not the main hassle and additional read for the current scale is fair enough.
+
+
 ### Git-flow used
