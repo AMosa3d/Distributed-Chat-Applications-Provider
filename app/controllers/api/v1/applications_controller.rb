@@ -16,7 +16,7 @@ class Api::V1::ApplicationsController < ApplicationController
 
   # POST /api/v1/applications
   def create
-    @application = Application.create!(creation_params)
+    @application = Application.create!(application_whitelist_params)
     json_response(
       {
         :message => "Application has be created successfully",
@@ -42,14 +42,6 @@ class Api::V1::ApplicationsController < ApplicationController
   # these are the only params that the client should be able to create/update
   def application_whitelist_params
     params.permit(:name)
-  end
-
-  # Adds the application generated token to the name param
-  def creation_params
-    return [
-      :name => application_whitelist_params[:name],
-      :token => SecureRandom.hex
-    ]
   end
 
   def fetch_application
