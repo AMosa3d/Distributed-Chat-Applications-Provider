@@ -5,14 +5,14 @@
 ## Agile Process
 The Agile process used here is very simple as there is only one developer, it shouldn't be complicated at all.
 
-This has been done simply using Clickup as the board management tool:
-- The Challange itself has been separated into mini-tasks.
+This has been done simply using ClickUp as the board management tool:
+- The Challenge itself has been separated into mini-tasks.
 - Each task has simply 3 statuses (TODO, In Progress, Completed), acceptance criteria, time-estimation and due-date, also comments if needed.
-- The tasks hasn't been written as a user-stories, it was much simpler and better to be segregatted as a technical-based stories that fits with the challenge target.
+- The tasks hasn't been written as a user-stories, it was much simpler and better to be segregated as a technical-based stories that fits with the challenge target.
 
 If you are interested, you can check the board's **[List view](https://sharing.clickup.com/42008161/l/h/6-222229294-1/ef602d4c6f6412b)**, it also has a **[Gantt-Chart view](https://sharing.clickup.com/42008161/g/h/181zk1-20/6ed8fc490596066)**.
 
-![Clickup Board List View](/assets/imgs/docs/agile_board_process.png "Clickup Board List View")
+![ClickUp Board List View](/assets/imgs/docs/agile_board_process.png "ClickUp Board List View")
 ## Covered points
 ## Documentation
 ### API Documentation
@@ -62,5 +62,39 @@ As you can see it's very simple and serves the requirement given but there is 2 
 
 The reason why I have ignored using JWT was that I tried to make it simple and the application table read/writes operations is not the main hassle and additional read for the current scale is fair enough.
 
+#### Chats and Messages counts per Applications and Chats tables records
+The requirements here was simply to have chats_count and messages_counts aggregated in each record and they can't be live but should be updated every hour at most.
+
+So I decided to use scheduled Cron jobs to run background tasks every ```0 * * * *``` corn-ly using **Sidekiq** and **Sidekiq-Cron**. Also I have mounted their portals which can be accessed after running the rails server at `localhost:3000/sidekiq` and `localhost:3000/sidekiq/cron`.
+![Sidekiq Portal](/assets/imgs/docs/sidekiq_cron_portal.png "Sidekiq Portal")
+
+The jobs configuration was simple with 3 reties and without timeout handling for now.
+Both the jobs simply call custom queries I have made to do the aggregation, I thought it's better for them to stay in the ActiveRecord models to keep it smart and consistent.
+
+The queries are as follows:
+```ruby
+class Application < ApplicationRecord
+  # ... The remainder of the code ...
+  def self.aggregate_chats_count
+    self.connection.execute(
+      'UPDATE applications apps
+       JOIN(SELECT application_id, COUNT(application_id) as aggregation
+       FROM chats
+       GROUP BY application_id) c ON apps.id = c.application_id
+       SET apps.chats_count = c.aggregation;'
+    )
+  end
+end
+```
+
+```ruby
+# To be documented later
+```
+
+There are a lot of notes that I like to share here:
+- I could actually found any ActiveRecord-based query to implement it, so here comes the custom queries.
+- I am new with MySQL ```Explain``` **-but familiar with other engines' execution plans results-** but I have run it and I didn't find anything bad from my perspective.
+- There might be a DBMS-based approach but I choose to use **Sidekiq** specifically to deal more with the async background tasks.
+- No major need here for 3rd party Pub-Sub services such as Kafka or RabbitMQ.   
 
 ### Git-flow used
