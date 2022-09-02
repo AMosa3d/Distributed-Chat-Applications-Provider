@@ -1,0 +1,5 @@
+# Schedule Chats Aggregator Cron-Job to run every hour
+chats_count_aggregation_job:
+  cron: "0 * * * *"
+  class: "ChatsCountAggregatorJob"
+  queue: "default"
