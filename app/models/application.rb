@@ -20,7 +20,7 @@ class Application < ApplicationRecord
   end
 
   def self.aggregate_chats_count
-    # Thier might be an ActiveRecord-based approach but I couldn't find any.
+    # Their might be an ActiveRecord-based approach but I couldn't find any.
     self.connection.execute(
       'UPDATE applications apps
        JOIN(SELECT application_id, COUNT(application_id) as aggregation
