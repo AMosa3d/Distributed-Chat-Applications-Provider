@@ -8,7 +8,9 @@ Rails.application.routes.draw do
   concern :apis_base do
     resources :applications, param: :token, :except => [:destroy] do
       resources :chats, param: :number, :except => [:destroy] do
-        resources :messages, param: :number, :except => [:destroy], controller: 'chat_messages'
+        resources :messages, param: :number, :except => [:destroy], controller: 'chat_messages' do
+          get 'search', action: 'search', on: :collection
+        end
       end
     end
   end

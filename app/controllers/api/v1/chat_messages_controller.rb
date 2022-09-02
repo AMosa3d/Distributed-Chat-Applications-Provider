@@ -8,6 +8,12 @@ class Api::V1::ChatMessagesController < ApplicationController
     json_response(@chat.messages, :ok, except = [:id, :number, :chat_id])
   end
 
+  # GET /api/v1/applications/:application_token/chats/:chat_number/messages/search?query=
+  # reads all application's chats
+  def search
+    json_response(@chat.messages.search(@chat.id, params[:query]), :ok, except = [:id, :chat_id])
+  end
+
   # GET /api/v1/applications/:application_token/chats/:chat_number/messages/:number
   # reads application's chat by its number
   def show

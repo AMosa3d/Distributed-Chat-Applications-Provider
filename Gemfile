@@ -36,6 +36,12 @@ gem "bootsnap", require: false
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 # gem "rack-cors"
 
+# ElasticSearch Gems
+gem 'elasticsearch-model'
+gem 'elasticsearch-persistence'
+gem 'elasticsearch-rails'
+
+# Swagger Gems
 gem 'rswag-api'
 gem 'rswag-ui'
 
