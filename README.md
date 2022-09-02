@@ -65,7 +65,7 @@ The reason why I have ignored using JWT was that I tried to make it simple and t
 #### Chats and Messages counts per Applications and Chats tables records
 The requirements here was simply to have chats_count and messages_counts aggregated in each record and they can't be live but should be updated every hour at most.
 
-So I decided to use scheduled Cron jobs to run background tasks every ```0 * * * *``` corn-ly using **Sidekiq** and **Sidekiq-Cron**. Also I have mounted their portals which can be accessed after running the rails server at `localhost:3000/sidekiq` and `localhost:3000/sidekiq/cron`.
+So I decided to use scheduled Cron jobs to run background tasks every ```0 * * * *``` corn-ly using **Sidekiq** and **Sidekiq-Cron**. This schedule configuration can be found in ```config/schedule.yml```. Also I have mounted their portals which can be accessed after running the rails server at `localhost:3000/sidekiq` and `localhost:3000/sidekiq/cron`.
 ![Sidekiq Portal](/assets/imgs/docs/sidekiq_cron_portal.png "Sidekiq Portal")
 
 The jobs configuration was simple with 3 reties and without timeout handling for now.
@@ -78,22 +78,39 @@ class Application < ApplicationRecord
   def self.aggregate_chats_count
     self.connection.execute(
       'UPDATE applications apps
-       JOIN(SELECT application_id, COUNT(application_id) as aggregation
-       FROM chats
-       GROUP BY application_id) c ON apps.id = c.application_id
-       SET apps.chats_count = c.aggregation;'
+       JOIN(
+         SELECT application_id, COUNT(application_id) as aggregation
+         FROM chats
+         GROUP BY application_id
+       ) chats ON apps.id = chats.application_id
+       SET apps.chats_count = chats.aggregation;'
     )
   end
 end
 ```
 
 ```ruby
-# To be documented later
+class Chat < ApplicationRecord
+  # ... The remainder of the code ...
+  def self.aggregate_messages_count
+    self.connection.execute(
+      'UPDATE chats chats
+       JOIN(
+         SELECT chat_id, COUNT(chat_id) as aggregation
+         FROM messages
+         GROUP BY chat_id
+       ) msgs ON chats.id = msgs.chat_id
+       SET chats.messages_count = msgs.aggregation;'
+    )
+  end
+end
 ```
 
 There are a lot of notes that I like to share here:
+- It was better for me to COUNT() rather than using MAX() in-case we delete any record in between.
 - I could actually found any ActiveRecord-based query to implement it, so here comes the custom queries.
 - I am new with MySQL ```Explain``` **-but familiar with other engines' execution plans results-** but I have run it and I didn't find anything bad from my perspective.
+- When using ```self.connection.execute```, I couldn't have more time to take a deep dive to understand on an advanced way how ActiveRecord close the connection but I think it handles it in our case here.
 - There might be a DBMS-based approach but I choose to use **Sidekiq** specifically to deal more with the async background tasks.
 - No major need here for 3rd party Pub-Sub services such as Kafka or RabbitMQ.   
 
