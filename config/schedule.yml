@@ -3,3 +3,8 @@ chats_count_aggregation_job:
   cron: "0 * * * *"
   class: "ChatsCountAggregatorJob"
   queue: "default"
+
+messages_count_aggregation_job:
+  cron: "0 * * * *"
+  class: "MessagesCountAggregatorJob"
+  queue: "default"
