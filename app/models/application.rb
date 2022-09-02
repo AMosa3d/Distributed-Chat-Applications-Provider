@@ -23,10 +23,12 @@ class Application < ApplicationRecord
     # Their might be an ActiveRecord-based approach but I couldn't find any.
     self.connection.execute(
       'UPDATE applications apps
-       JOIN(SELECT application_id, COUNT(application_id) as aggregation
-       FROM chats
-       GROUP BY application_id) c ON apps.id = c.application_id
-       SET apps.chats_count = c.aggregation;'
+       JOIN(
+         SELECT application_id, COUNT(application_id) as aggregation
+         FROM chats
+         GROUP BY application_id
+       ) chats ON apps.id = chats.application_id
+       SET apps.chats_count = chats.aggregation;'
     )
   end
 end
