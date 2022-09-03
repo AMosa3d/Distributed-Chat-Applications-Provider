@@ -45,6 +45,14 @@ There is the Database Schema to fully visualize everything together:
 
 ![MySQL Database Design](/assets/imgs/docs/mysql_database_design.png "MySQL Database Design")
 
+Regarding tables' indices (I will exclude mentioning the auto-generated indices such as primary and foreign keys):
+- **Applications Table**:
+  - `token`: Unique constraint index. (Need the most in find queries)
+- **Chats Table** and **Messages Table**:
+  - `number` and the foreign key: Composite unique constraint index.
+
+No more indices is needed to keep the MySQL operations optimized as each data change operation will require every index to be updated before applying the next operation is applied, so I think they are very enough and every one is doing no more than his job.
+
 ### Code Documentation
 #### Generated Token of the Application
 I was debating about using **JSON Web Token (JWT)**, **UUID** or any randomly generated string, so I thought that using **randomly generate 32 hex chars length string** would be the best here as used below.
