@@ -25,6 +25,6 @@ class ChatMessage < ApplicationRecord
       }
     }
 
-    self.__elasticsearch__.search(searchBody)
+    self.__elasticsearch__.search(searchBody).map{|elkElement| elkElement[:_source]}
   end
 end

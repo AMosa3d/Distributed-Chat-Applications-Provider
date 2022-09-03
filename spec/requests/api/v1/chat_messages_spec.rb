@@ -166,4 +166,46 @@ RSpec.describe "api/v1/chat_messages_controller", type: :request do
 
   end
 
+################################################################################
+
+  path "/api/v1/applications/:application_token/chats/:chat_number/messages/search?query=:query" do
+
+    get "Retrieves messages using ElasticSearch" do
+      description "Retrieves messages with bodies that contain 1 or more words from the given search query, case-insensitively"
+      tags ["Chat Messages", "ElasticSearch"]
+      produces "application_token/json"
+      parameter name: :application_token, in: :path, type: :string
+      parameter name: :chat_number, in: :path, type: :string
+      parameter name: :query, in: :query, type: :string, required: true
+      response '200', 'Chat\'s Messages retrieved' do
+        schema type: :array,
+          items: {
+            type: :object,
+            properties: {
+              body: { type: :string },
+              number: { type: :integer },
+              created_at: { type: :string },
+              updated_at: { type: :string }
+            },
+            required: ['body', 'number', 'created_at', 'updated_at']
+          }
+
+          let(:chatMessage) {}
+        run_test!
+      end
+      response "422", "Invalid request" do
+        schema type: :object,
+          properties: {
+            message: { type: :string }
+          },
+          required: ['message']
+
+        let(:message) {}
+        run_test!
+      end
+    end
+
+  end
+
+
 end

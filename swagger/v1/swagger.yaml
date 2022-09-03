@@ -439,6 +439,64 @@ paths:
                   type: string
               required:
               - body
+  "/api/v1/applications/:application_token/chats/:chat_number/messages/search?query=:query":
+    get:
+      summary: Retrieves messages using ElasticSearch
+      description: Retrieves messages with bodies that contain 1 or more words from
+        the given search query, case-insensitively
+      tags:
+      - - Chat Messages
+        - ElasticSearch
+      parameters:
+      - name: application_token
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: chat_number
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: query
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Chat's Messages retrieved
+          content:
+            application_token/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    body:
+                      type: string
+                    number:
+                      type: integer
+                    created_at:
+                      type: string
+                    updated_at:
+                      type: string
+                  required:
+                  - body
+                  - number
+                  - created_at
+                  - updated_at
+        '422':
+          description: Invalid request
+          content:
+            application_token/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                - message
   "/api/v1/applications/:application_token/chats":
     get:
       summary: Retrieves all the created chats for the given token's application
