@@ -18,4 +18,17 @@ class Application < ApplicationRecord
       break generatedToken unless Application.exists?(token: generatedToken)
     end
   end
+
+  def self.aggregate_chats_count
+    # Their might be an ActiveRecord-based approach but I couldn't find any.
+    self.connection.execute(
+      'UPDATE applications apps
+       JOIN(
+         SELECT application_id, COUNT(application_id) as aggregation
+         FROM chats
+         GROUP BY application_id
+       ) chats ON apps.id = chats.application_id
+       SET apps.chats_count = chats.aggregation;'
+    )
+  end
 end
