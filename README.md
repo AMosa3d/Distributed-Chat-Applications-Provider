@@ -122,4 +122,40 @@ There are a lot of notes that I like to share here:
 - There might be a DBMS-based approach but I choose to use **Sidekiq** specifically to deal more with the async background tasks.
 - No major need here for 3rd party Pub-Sub services such as Kafka or RabbitMQ.   
 
+### ElasticSearch
+Here it was very fun with a lot of debates and I had many decisions to take based on the time-limit of the task, the scale of the program and the given requirements.
+
+The hassle was, 'Should I save the data only in ElasticSearch or duplicate the important data of the search feature in ElasticSearch?'.
+
+Here is what I have reached:
+- ElasticSearch is a very powerful search engine and it can store data, but it shouldn't be the primary database. As if it was down, we only lose the search functionality of the app, not all the functionalities. SO it's better to work in sync with the primary database **(our single source of truth)**.
+- The data should be kept in ElasticSearch itself to be queried, and since MySQL is the primary database. I should always sync the data between MySQL and ElasticSearch. There was many apporaches but I decided to do it with each CRUD operation, and also it would be fun to integrate Logstash to do all the data sync but the time was very limited to do so.
+- There was no need to sustain any data from any other table but ```messages``` table.
+- The approach I have used is very simple, but it has a drawback as I doesn't handle failed CRUDs on Elastic which will lead to data inconsistency, so that's why I would rather go with Logstash if I had more time.
+- The data structure of the **Document** that is saved inside the Elastic **Index** is the same as in MySQL as the data we have is very simple and should be both here and there.
+- I also didn't need to use ```as_indexed_json``` and ```mapping``` as the defaults are doing pretty what was given as a requirement, so no need to show off or over-engineering.
+
+The Elastic search query finds any message that its body have one or more word in any order, declining the given order. I've also played with RegExp to build a **Partial Search Mechanism** but I have rolled it back as it sustains the order, so I preferred passing multiple words without constraining the order of the search query. Here you can find it:
+```ruby
+searchBody = {
+  query: {
+    bool: {
+      must: [
+        {
+          term: {
+            chat_id: chatId
+          }
+        },
+        match: {
+          body: searchQuery
+        }
+      ]
+    }
+  }
+}
+```
+
+And this is a sample of the data using **Kibana** dashboard:
+![Kibana Dashboard](/assets/imgs/docs/kibana_dashboard_sample_data.png "Kibana Dashboard")
+
 ### Git-flow used
