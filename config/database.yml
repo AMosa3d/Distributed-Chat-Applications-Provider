@@ -8,9 +8,10 @@ default: &default
   adapter: mysql2
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   timeout: 5000
-  username: instabugUser
-  password: mysql-db-password
+  username: root
+  password: pswd
   port: 3306
+  host: mysql
 
 development:
   <<: *default
