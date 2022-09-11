@@ -47,7 +47,7 @@ services:
     networks:
       - default
 
-  elastic:
+  elasticsearch:
     image: elasticsearch:8.4.0
     ports:
       - "9200:9200"
@@ -57,8 +57,7 @@ services:
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
       - discovery.type=single-node
-    networks:
-      - default
+      - xpack.security.enabled=false
 
 
 volumes:
