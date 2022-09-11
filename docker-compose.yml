@@ -59,8 +59,15 @@ services:
       - discovery.type=single-node
       - xpack.security.enabled=false
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    volumes:
+      - rabbitmq:/var/lib/rabbitmq
+    ports:
+      - "15672:15672"
 
 volumes:
   db_data:
   redis:
   elastic:
+  rabbitmq:
