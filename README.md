@@ -5,23 +5,22 @@ A Ruby on rails interview task in a form of a chat system application.
 ## Tools used
    Version       | Is used? | Notes
 -----------------|----------|---------
-Rails            | YES      | 
-MySQL            | YES      | 
-SideKiq          | YES      | 
-ElasticSearch    | YES      | Used but had a problem dockerizing it
-Kibana           | YES      | Used but not dockerized   
-Docker           | YES      | Everything is dockerized except ElasticSearch and SideKiq-Cron
+Rails            | YES      |
+MySQL            | YES      |
+SideKiq          | YES      |
+ElasticSearch    | YES      |
+Docker           | YES      |
 Redis            | Partially      | Suggested usage in optimization section
 RabbitMQ         | NO      | Suggested usage in optimization section
 
 ## Installation and Run
-You can still run ```docker-compose up``` to run the majority on the app except only for the **sidekiq-cron** and **ElasticSearch**.
+You can still run ```docker-compose up``` to run the whole stack.
 
 ## Suggested Optimization
 ### Concurrency and Race Conditions
 I thought about using ```redis``` caching to lower the load on the Database and also in race conditions.
 
-The race conditions can be found in the 2 parts, the token generation and the chat/message number generation. As the token duplication is very low -as discussed below- it can be ignored. 
+The race conditions can be found in the 2 parts, the token generation and the chat/message number generation. As the token duplication is very low -as discussed below- it can be ignored.
 
 Regarding the number, we can cache each chat lastly large number per application, increment it and save it again in the cache. This is a direct race condition that could be handled by **Redis locks** or using **Redis Atomic INCR**.
 
