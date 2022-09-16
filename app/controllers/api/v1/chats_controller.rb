@@ -48,7 +48,7 @@ class Api::V1::ChatsController < ApplicationController
   def creation_params
     return [
       :name => chat_whitelist_params[:name],
-      :number => @application.chats.maximum(:number).to_i + 1
+      :number => $redis.incr(@application.id.to_s + '_chat_number')
     ]
   end
 
