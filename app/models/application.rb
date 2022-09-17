@@ -15,7 +15,7 @@ class Application < ApplicationRecord
     # we can avoid complicating the token generation more than that.
     self.token = loop do
       generatedToken = SecureRandom.hex(32)
-      break generatedToken unless Application.exists?(token: generatedToken)
+      break generatedToken if $redis.sadd?('apps_tokens', generatedToken)
     end
   end
 

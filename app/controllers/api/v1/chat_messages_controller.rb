@@ -27,7 +27,7 @@ class Api::V1::ChatMessagesController < ApplicationController
       {
         :message => "ChatMessage has be created successfully",
         :chat_message => @chatMessage
-      }, :created, except = [:id, :application_id]
+      }, :created, except = [:id, :chat_id]
     )
   end
 
@@ -39,7 +39,7 @@ class Api::V1::ChatMessagesController < ApplicationController
       {
         :message => "ChatMessage has be updated successfully",
         :chat_message => @chatMessage
-      }, :ok, except = [:id, :application_id]
+      }, :ok, except = [:id, :chat_id]
     )
   end
 
@@ -54,7 +54,7 @@ class Api::V1::ChatMessagesController < ApplicationController
   def creation_params
     return [
       :body => chat_message_whitelist_params[:body],
-      :number => @chat.messages.maximum(:number).to_i + 1
+      :number => $redis.incr(@chat.id.to_s + '_message_number')
     ]
   end
 
