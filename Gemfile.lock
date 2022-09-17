@@ -68,9 +68,13 @@ GEM
       tzinfo (~> 2.0)
     addressable (2.8.1)
       public_suffix (>= 2.0.2, < 6.0)
+    amq-protocol (2.3.2)
     bootsnap (1.13.0)
       msgpack (~> 1.2)
     builder (3.2.4)
+    bunny (2.19.0)
+      amq-protocol (~> 2.3, >= 2.3.1)
+      sorted_set (~> 1, >= 1.0.2)
     concurrent-ruby (1.1.10)
     connection_pool (2.2.5)
     crass (1.0.6)
@@ -215,6 +219,7 @@ GEM
       thor (~> 1.0)
       zeitwerk (~> 2.5)
     rake (13.0.6)
+    rbtree (0.4.5)
     redis (4.8.0)
     reline (0.3.1)
       io-console (~> 0.5)
@@ -245,6 +250,9 @@ GEM
       actionpack (>= 3.1, < 7.1)
       railties (>= 3.1, < 7.1)
     ruby2_keywords (0.0.5)
+    serverengine (2.0.7)
+      sigdump (~> 0.2.2)
+    set (1.0.3)
     shoulda-matchers (5.1.0)
       activesupport (>= 5.2.0)
     sidekiq (6.5.6)
@@ -254,6 +262,16 @@ GEM
     sidekiq-cron (1.7.0)
       fugit (~> 1)
       sidekiq (>= 4.2.1)
+    sigdump (0.2.4)
+    sneakers (2.11.0)
+      bunny (~> 2.12)
+      concurrent-ruby (~> 1.0)
+      rake
+      serverengine (~> 2.0.5)
+      thor
+    sorted_set (1.0.3)
+      rbtree
+      set (~> 1.0)
     strscan (3.0.4)
     thor (1.2.1)
     timeout (0.3.0)
@@ -286,6 +304,7 @@ DEPENDENCIES
   shoulda-matchers
   sidekiq
   sidekiq-cron
+  sneakers
   tzinfo-data
 
 RUBY VERSION
