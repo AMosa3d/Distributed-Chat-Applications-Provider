@@ -71,7 +71,7 @@ services:
     volumes:
       - .:/app
     environment:
-      WORKERS: RabbitConsumer
+      - WORKERS=ChatsRabbitConsumer,MessagesRabbitConsumer
 
 volumes:
   db_data:

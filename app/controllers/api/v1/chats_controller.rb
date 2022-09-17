@@ -16,7 +16,9 @@ class Api::V1::ChatsController < ApplicationController
 
   # POST /api/v1/applications/:application_token/chats
   def create
-    @chat = @application.chats.create!(creation_params)
+    @chat = Chat.new(creation_params)
+    RabbitPublisher.publish('chat', @chat)
+
     json_response(
       {
         :message => "Chat has be created successfully",
@@ -27,8 +29,8 @@ class Api::V1::ChatsController < ApplicationController
 
   # PUT - PATCH  /api/v1/applications/:application_token/chats/:number
   def update
-    @chat.update!(chat_whitelist_params)
-
+    @chat.assign_attributes(chat_whitelist_params)
+    RabbitPublisher.publish('chat', @chat)
     json_response(
       {
         :message => "Chat has be updated successfully",

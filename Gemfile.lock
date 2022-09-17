@@ -152,6 +152,7 @@ GEM
     io-console (0.5.11)
     irb (1.4.1)
       reline (>= 0.3.0)
+    json (2.5.1)
     json-schema (2.8.1)
       addressable (>= 2.4)
     loofah (2.18.0)
@@ -294,6 +295,7 @@ DEPENDENCIES
   elasticsearch-rails
   factory_bot_rails
   faker
+  json
   mysql2
   puma (~> 5.0)
   rails (~> 7.0.3, >= 7.0.3.1)
