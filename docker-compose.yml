@@ -72,6 +72,7 @@ services:
       - .:/app
     environment:
       - WORKERS=ChatsRabbitConsumer,MessagesRabbitConsumer
+      - RABBITMQ_HOST=rabbitmq
 
 volumes:
   db_data:
