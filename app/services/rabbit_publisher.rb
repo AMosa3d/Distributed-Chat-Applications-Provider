@@ -13,7 +13,7 @@ class RabbitPublisher
 
   def self.publish(queue_name, message_obj)
     channel.with do |channel|
-      exchange = channel.fanout('test_exchange')
+      exchange = channel.direct('chats_exchange')
       exchange.publish(message_obj)
       # queue_chats = channel.queue('test_queue', durable: true)
       # channel.default_exchange.publish(message_obj, routing_key: queue_chats.name)
