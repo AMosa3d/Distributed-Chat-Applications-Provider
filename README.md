@@ -3,29 +3,42 @@
 A Ruby on rails interview task in a form of a chat system application.
 
 ## Tools used
-   Version       | Is used? | Notes
------------------|----------|---------
-Rails            | YES      |
-MySQL            | YES      |
-SideKiq          | YES      |
-ElasticSearch    | YES      |
-Docker           | YES      |
-Redis            | Partially      | Suggested usage in optimization section
-RabbitMQ         | NO      | Suggested usage in optimization section
+   Version       | Is used?
+-----------------|----------
+Rails            | YES      
+MySQL            | YES      
+SideKiq          | YES      
+ElasticSearch    | YES      
+Docker           | YES      
+Redis            | YES      
+RabbitMQ         | YES      
+Sneakers         | YES but Had an issue to setup it with docker
+
+## Requirements Status
+Requirement                                             | Is met?
+--------------------------------------------------------|----------
+Application CRUD APIs (without Delete)                  | YES
+Chats CRUD APIs (without Delete)                        | YES
+Messages CRUD APIs (without Delete)                     | YES
+Application Model should has a unique token             | YES
+Applications Table has chats_count column               | YES
+Chats Table has messages_count column                   | YES
+Optimized database tables' indices                      | YES
+Search Api in message using ElasticSearch               | YES
+Handle Concurrency (Race Conditions and Data Races)     | YES
+Minimize database writes using Queuing system           | Couldn't make it run (Check this **[Pull Request](https://github.com/AMosa3d/Interview-Challenge/pull/16)**. I have integrated RabbitMQ and Sneakers and implemented the publisher and consumers for each queue. But I couldn't bind sneakers workers to the queues)
+Containerize the system with Docker                     | YES
+
 
 ## Installation and Run
-You can still run ```docker-compose up``` to run the whole stack.
+You can still run ```docker-compose up``` to run the whole stack. Just give it a couple of minutes to load all the services.
 
 ## Suggested Optimization
-### Concurrency and Race Conditions
-I thought about using ```redis``` caching to lower the load on the Database and also in race conditions.
-
-The race conditions can be found in the 2 parts, the token generation and the chat/message number generation. As the token duplication is very low -as discussed below- it can be ignored.
-
-Regarding the number, we can cache each chat lastly large number per application, increment it and save it again in the cache. This is a direct race condition that could be handled by **Redis locks** or using **Redis Atomic INCR**.
-
 ### Avoid direct Database Write
 I thought about saving the create/update queries and run them as a transaction every 2 minutes in a background task. Also RabbitMQ and Kafka can do come to the rescue, and I think it would be also fun to save them as a bulk transaction to minimize the write hits.
+
+### Pagination
+The pagination can come handy and will support API caching if needed, this will make the faster and minimize the load on the database.
 
 ## Agile Process
 The Agile process used here is very simple as there is only one developer, it shouldn't be complicated at all.
@@ -34,6 +47,7 @@ This has been done simply using ClickUp as the board management tool:
 - The Challenge itself has been separated into mini-tasks.
 - Each task has simply 3 statuses (TODO, In Progress, Completed), acceptance criteria, time-estimation and due-date, also comments if needed.
 - The tasks hasn't been written as a user-stories, it was much simpler and better to be segregated as a technical-based stories that fits with the challenge target.
+- Github is integrated to the board to create branches and pull requests while tracking the progress for each branch.
 
 If you are interested, you can check the board's **[List view](https://sharing.clickup.com/42008161/l/h/6-222229294-1/ef602d4c6f6412b)**, it also has a **[Gantt-Chart view](https://sharing.clickup.com/42008161/g/h/181zk1-20/6ed8fc490596066)**.
 
@@ -118,19 +132,57 @@ And this is a sample of the data using **Kibana** dashboard:
 
 ![Kibana Dashboard](/assets/imgs/docs/kibana_dashboard_sample_data.png "Kibana Dashboard")
 
+### Concurrency Handling
+I faced 3 Race-conditions in the app. One while generating the app token as discussed below and the other two are when generating the number of the chat and the number of the message. All of them should handle checking the uniqueness atomically. **Here Redis did all the work**.
+  1. Generating unique token of the Application process was checking directly the database if the token is found before or not. If 2 threads generated the same token and both of them has checked before any of them writes the value, this will make one request of them crashes as the MySQL will handle atomic write and we would like to avoid the crash.
+  Before:
+  ```ruby
+  self.token = loop do
+    generatedToken = SecureRandom.hex(32)
+    break generatedToken unless Application.exists?(token: generatedToken)
+  end
+  ```
+  To solve it, Redis **Atomic** `sadd` operation came handy as it will write one token to the cache at a time:
+  ```ruby
+  self.token = loop do
+    generatedToken = SecureRandom.hex(32)
+    break generatedToken if $redis.sadd?('apps_tokens', generatedToken)
+  end
+  ```
+
+  2. Generating the number of the created chat is based on the application's chats, so I did avoid reading from database to determine the next unique number for this chat, as it will also produce the same problem as in generating token but this is much worse since there is no unique index in the database. This will lead to data inconsistency.
+  Before:
+  ```ruby
+  :number => @application.chats.maximum(:number).to_i + 1
+  ```
+  To solve it, Redis **Atomic** `incr` operation reads, increments and writes the value in it while returning the value to the app all **atomically**:
+  ```ruby
+  :number => $redis.incr(@application.id.to_s + '_chat_number')
+  ```
+
+  3. Generating the number of the created message is the exact same scenario as the chat's number.
+  Before:
+  ```ruby
+  :number => @chat.messages.maximum(:number).to_i + 1
+  ```
+  After using Redis `incr`:
+  ```ruby
+  :number => $redis.incr(@chat.id.to_s + '_message_number')
+  ```
+
 ### Generated Token of the Application
 I was debating about using **JSON Web Token (JWT)**, **UUID** or any randomly generated string, so I thought that using **randomly generate 32 hex chars length string** would be the best here as used below.
 ```ruby
 def generate_token
     self.token = loop do
       generatedToken = SecureRandom.hex(32)
-      break generatedToken unless Application.exists?(token: generatedToken)
+      break generatedToken if $redis.sadd?('apps_tokens', generatedToken)
     end
 end
 ```
 As you can see it's very simple and serves the requirement given but there is 2 important notes that should be discussed here:
-  1. This randomly string is not guaranteed to be unique but it is handled by unique index in MySQL and ```unless Application.exists?(token: generatedToken)``` . This requires a db read operation to confirm and in a very raaaare cases would require more than one read. (as num of possible tokens = 16 hex char ^ 32 max len).
-  2. We would handle uniqueness better in JWT but requires more effort to build its parameters and generate it. Although we would need to use the ID of the application to guarantee its uniqueness which would require also a db read operation, but there are cache hacks that Redis can assist in to make it smoother.
+  1. This randomly string is not guaranteed to be unique but it is handled by unique set in Redis using `sadd` operation that returns `true` only if it was not found before. This saves us from the  db read operation that was used before using `break generatedToken unless Application.exists?(token: generatedToken)` to confirm the uniqueness and also add more speed since redis is much faster. In most of the cases we wouldn't need the loop as the generation is mostly unique as the num of possible tokens = 16 hex char ^ 32 max len.
+  2. We would handle uniqueness better in JWT but requires more effort to build its parameters and generate it. Although we would need to use the ID of the application to guarantee its uniqueness which would require also a db read operation, but there are cache hacks that Redis can assist in to make it smoother, but I think approach 1 is good for now.
 
 The reason why I have ignored using JWT was that I tried to make it simple and the application table read/writes operations is not the main hassle and additional read for the current scale is fair enough.
 
