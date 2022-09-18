@@ -5,6 +5,7 @@ class Api::V1::ApplicationsController < ApplicationController
   # reads all the applications
   def index
     @applications = Application.all
+    RabbitPublisher.publish('', 'Hello World !!!!')
     json_response(@applications, :ok, except = [:id, :token])
   end
 

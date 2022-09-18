@@ -1,6 +1,5 @@
 
 Sidekiq.configure_server do |config|
-  print("----------------------- CONFIGURING SERVER")
   config.redis = { url: "redis://redis:6379/0" }
 
   config.on(:startup) do

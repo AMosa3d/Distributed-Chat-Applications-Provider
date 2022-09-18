@@ -22,7 +22,9 @@ class Api::V1::ChatMessagesController < ApplicationController
 
   # POST /api/v1/applications/:application_token/chats/:chat_number/messages
   def create
-    @chatMessage = @chat.messages.create!(creation_params)
+    @chatMessage = ChatMessage.new(creation_params)
+    RabbitPublisher.publish('message', @chatMessage)
+
     json_response(
       {
         :message => "ChatMessage has be created successfully",
@@ -33,8 +35,8 @@ class Api::V1::ChatMessagesController < ApplicationController
 
   # PUT - PATCH  /api/v1/applications/:application_token/chats/:chat_number/messages/:number
   def update
-    @chatMessage.update!(chat_message_whitelist_params)
-
+    @chatMessage.assign_attributes(chat_message_whitelist_params)
+    RabbitPublisher.publish('message', @chatMessage)
     json_response(
       {
         :message => "ChatMessage has be updated successfully",
